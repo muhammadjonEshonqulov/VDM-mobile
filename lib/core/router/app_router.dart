@@ -11,12 +11,11 @@ import '../../features/users/presentation/bloc/users_bloc.dart';
 import '../constants/app_constants.dart';
 
 class AppRouter {
-  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  
+
   static GoRouter get router => _router;
 
   static final GoRouter _router = GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: sl<GlobalKey<NavigatorState>>(),
     initialLocation: AppConstants.routeSplash,
     routes: [
       GoRoute(

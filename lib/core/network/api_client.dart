@@ -1,18 +1,23 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vdm/core/constants/app_constants.dart';
+import 'package:vdm/core/router/app_router.dart';
 import 'package:vdm/features/auth/data/models/auth_models.dart';
 
 import '../utils/app_utils.dart';
 
 class ApiClient {
+  final GlobalKey<NavigatorState> navigatorKey;
+
   final Dio _dio;
   final SharedPreferences _sharedPreferences;
   bool _isRefreshing = false;
   final List<({RequestOptions requestOptions, ErrorInterceptorHandler handler})> _requestsQueue = [];
 
-  ApiClient(this._dio, this._sharedPreferences) {
+  ApiClient(this._dio, this._sharedPreferences, {required this.navigatorKey}) {
     _dio.options.baseUrl = AppConstants.baseUrl;
     _dio.options.connectTimeout = Duration(milliseconds: AppConstants.connectTimeout);
     _dio.options.receiveTimeout = Duration(milliseconds: AppConstants.receiveTimeout);
@@ -67,6 +72,15 @@ class ApiClient {
             } catch (e) {
               await _clearAuth();
               _rejectAllRequests(error);
+
+              final errorMessage = error.response?.data?['message']?.toString() ?? 'Session expired. Please login again.';
+
+              if (navigatorKey.currentContext != null && navigatorKey.currentContext!.mounted) {
+                AppUtils.showErrorSnackBar(navigatorKey.currentContext!, errorMessage);
+                // GoRouter.of(navigatorKey.currentContext!).go(AppConstants.routeLogin);
+                AppRouter.router.go(AppConstants.routeLogin);
+              }
+
               return handler.next(error);
             } finally {
               _isRefreshing = false;

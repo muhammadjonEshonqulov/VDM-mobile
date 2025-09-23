@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,6 +45,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RefreshAuthToken(sl()));
   sl.registerLazySingleton(() => GetAuthToken(sl()));
   sl.registerLazySingleton(() => GetRefreshToken(sl()));
+  sl.registerLazySingleton(() => GlobalKey<NavigatorState>());
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
@@ -97,7 +99,7 @@ Future<void> init() async {
 
   // Network
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
-  sl.registerLazySingleton(() => ApiClient(sl(), sl()));
+  sl.registerLazySingleton(() => ApiClient(sl(), sl(), navigatorKey: sl()));
 
   //! External
   final sharedPreferences = await SharedPreferences.getInstance();

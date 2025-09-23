@@ -49,6 +49,28 @@ class GetAuthToken implements UseCase<String, NoParams> {
   }
 }
 
+class RefreshAuthToken implements UseCase<void, NoParams> {
+  final AuthRepository repository;
+
+  RefreshAuthToken(this.repository);
+
+  @override
+  Future<Either<Failure, void>> call(NoParams params) async {
+    return await repository.refreshToken();
+  }
+}
+
+class GetRefreshToken implements UseCase<String, NoParams> {
+  final AuthRepository repository;
+
+  GetRefreshToken(this.repository);
+
+  @override
+  Future<Either<Failure, String>> call(NoParams params) async {
+    return await repository.getRefreshToken();
+  }
+}
+
 class LoginParams extends Equatable {
   final String username;
   final String password;

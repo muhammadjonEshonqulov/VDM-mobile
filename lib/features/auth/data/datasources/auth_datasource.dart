@@ -2,15 +2,19 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vdm/core/constants/app_constants.dart';
+import 'package:vdm/core/utils/app_utils.dart';
 import 'package:vdm/features/auth/data/models/auth_models.dart';
 
 abstract class AuthRemoteDataSource {
   Future<LoginResponse> login(LoginRequest request);
+  Future<RefreshTokenResponse> refreshToken(RefreshTokenRequest request);
 }
 
 abstract class AuthLocalDataSource {
   Future<void> cacheToken(String token);
   Future<String?> getToken();
+  Future<void> cacheRefreshToken(String refreshToken);
+  Future<String?> getRefreshToken();
   Future<void> cacheUser(UserModel user);
   Future<UserModel?> getCachedUser();
   Future<void> clearAuthData();
@@ -23,23 +27,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<LoginResponse> login(LoginRequest request) async {
-    try {
-      final response = await _dio.post(
-        AppConstants.loginEndpoint,
-        data: request.toJson(),
-      );
-      
-      return LoginResponse.fromJson(response.data);
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw DioException(
-          requestOptions: e.requestOptions,
-          error: 'Invalid credentials',
-          type: DioExceptionType.badResponse,
-        );
-      }
-      rethrow;
-    }
+    final response = await _dio.post(
+      AppConstants.loginEndpoint,
+      data: request.toJson(),
+    );
+    
+    return LoginResponse.fromJson(response.data);
+  }
+
+  @override
+  Future<RefreshTokenResponse> refreshToken(RefreshTokenRequest request) async {
+    final response = await _dio.post(
+      AppConstants.refreshTokenEndpoint,
+      data: request.toJson(),
+    );
+    
+    return RefreshTokenResponse.fromJson(response.data);
   }
 }
 
@@ -56,6 +59,16 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<String?> getToken() async {
     return _sharedPreferences.getString(AppConstants.tokenKey);
+  }
+
+  @override
+  Future<void> cacheRefreshToken(String refreshToken) async {
+    await _sharedPreferences.setString(AppConstants.refreshTokenKey, refreshToken);
+  }
+
+  @override
+  Future<String?> getRefreshToken() async {
+    return _sharedPreferences.getString(AppConstants.refreshTokenKey);
   }
 
   @override
@@ -83,6 +96,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> clearAuthData() async {
     await _sharedPreferences.remove(AppConstants.tokenKey);
+    await _sharedPreferences.remove(AppConstants.refreshTokenKey);
     await _sharedPreferences.remove(AppConstants.userKey);
   }
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vdm/core/constants/app_constants.dart';
+import 'package:vdm/core/utils/app_utils.dart';
 import 'package:vdm/features/auth/domain/entities/user.dart';
 import 'package:vdm/features/users/presentation/bloc/users_bloc.dart';
 import 'package:vdm/features/users/presentation/widgets/delete_confirmation_dialog.dart';
@@ -12,8 +15,9 @@ import 'package:vdm/features/users/presentation/widgets/users_loading_widget.dar
 import '../widgets/add_user_dialog.dart';
 
 class UsersPage extends StatefulWidget {
-  const UsersPage({super.key});
+  const UsersPage({super.key, required this.sharedPreferences});
 
+  final SharedPreferences sharedPreferences;
   @override
   State<UsersPage> createState() => _UsersPageState();
 }
@@ -34,14 +38,16 @@ class _UsersPageState extends State<UsersPage> {
       appBar: AppBar(title: const Text('Users'), backgroundColor: Theme.of(context).primaryColor, foregroundColor: Colors.white, elevation: 0),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          AddUserDialog.show(context);
+          
+          AppUtils.showSnackBar(context, widget.sharedPreferences.getString(AppConstants.refreshTokenKey) ?? 'refreshTokenKey');
+          // AddUserDialog.show(context);
         },
         child: const Icon(Icons.add),
       ),
       body: BlocListener<UsersBloc, UsersState>(
         listener: (context, state) {
           if (state is UsersActionError) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red, duration: const Duration(seconds: 3)));
+            AppUtils.showErrorSnackBar(context, state.message);
           }
         },
         child: BlocBuilder<UsersBloc, UsersState>(
@@ -55,7 +61,6 @@ class _UsersPageState extends State<UsersPage> {
               return UsersErrorWidget(
                 message: state.message,
                 onRetry: () {
-
                   context.read<UsersBloc>().add(const LoadUsers());
                 },
               );
@@ -72,7 +77,6 @@ class _UsersPageState extends State<UsersPage> {
 
               return RefreshIndicator(
                 onRefresh: () async {
-
                   context.read<UsersBloc>().add(const LoadUsers());
                 },
                 child: ListView.builder(

@@ -12,6 +12,9 @@
 .swiftpm/
 migrate_working_dir/
 
+# Generated files
+/generated/
+
 # IntelliJ related
 *.iml
 *.ipr

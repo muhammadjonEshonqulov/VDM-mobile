@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vdm/core/constants/app_constants.dart';
 import '../bloc/auth_bloc.dart';
 
 class SplashPage extends StatelessWidget {
@@ -11,9 +13,9 @@ class SplashPage extends StatelessWidget {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.of(context).pushReplacementNamed('/main');
+            context.go(AppConstants.routeHome);
           } else if (state is AuthUnauthenticated) {
-            Navigator.of(context).pushReplacementNamed('/login');
+            context.go(AppConstants.routeLogin);
           }
         },
         child: const Center(
@@ -22,7 +24,13 @@ class SplashPage extends StatelessWidget {
             children: [
               CircularProgressIndicator(),
               SizedBox(height: 20),
-              Text('Loading app...'),
+              Text(
+                'Loading app...',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
             ],
           ),
         ),

@@ -1,6 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vdm/core/constants/app_constants.dart';
+import 'package:vdm/core/extensions/localization_extension.dart';
+// import 'package:vdm/core/extensions/localization_extension.dart';
+import 'package:vdm/core/utils/app_utils.dart';
 
 import '../bloc/auth_bloc.dart';
 
@@ -30,20 +34,17 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.grey[50],
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
-
-          
           if (state is AuthAuthenticated) {
-
-            Navigator.of(context).pushReplacementNamed('/main');
+            context.go(AppConstants.routeHome);
           } else if (state is AuthError) {
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message), 
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 4),
-              ),
-            );
+            AppUtils.showErrorSnackBar(context, state.message);
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   SnackBar(
+            //     content: Text(state.message),
+            //     backgroundColor: Colors.red,
+            //     duration: const Duration(seconds: 4),
+            //   ),
+            // );
           }
         },
         child: SafeArea(
@@ -69,12 +70,9 @@ class _LoginPageState extends State<LoginPage> {
                         child: const Icon(Icons.local_shipping, size: 50, color: Colors.white),
                       ),
                       const SizedBox(height: 24),
-                      Text(
-                        'VDM Mobile',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.grey[800]),
-                      ),
+                      Text(context.appTitle, style: context.headlineBold?.copyWith(color: Colors.grey[800])),
                       const SizedBox(height: 8),
-                      Text('Vehicle Delivery Management', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.grey[600])),
+                      Text(context.l10n.appSubtitle, style: context.textTheme.bodyLarge?.copyWith(color: Colors.grey[600])),
                     ],
                   ),
                 ),
@@ -152,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                               elevation: 2,
                             ),
                             child: state is AuthLoading
-                                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
+                                ? const SizedBox(height: 25, width: 25, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)))
                                 : const Text('Login', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                           );
                         },
@@ -162,7 +160,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 const SizedBox(height: 32),
-                
               ],
             ),
           ),
@@ -176,7 +173,6 @@ class _LoginPageState extends State<LoginPage> {
       final username = _usernameController.text.trim();
       final password = _passwordController.text;
 
-      
       context.read<AuthBloc>().add(LoginRequested(username: username, password: password));
     }
   }

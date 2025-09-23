@@ -7,27 +7,44 @@ class LoginRequest {
   LoginRequest({required this.username, required this.password});
 
   Map<String, dynamic> toJson() {
-    return {
-      'username': username,
-      'password': password,
-    };
+    return {'username': username, 'password': password, 'isMobile': true};
+  }
+}
+
+class RefreshTokenRequest {
+  final String refreshToken;
+
+  RefreshTokenRequest({required this.refreshToken});
+
+  Map<String, dynamic> toJson() {
+    return {'refreshToken': refreshToken, 'isMobile': true};
+  }
+}
+
+class RefreshTokenResponse {
+  final String token;
+  final String refreshToken;
+  final String type;
+
+  RefreshTokenResponse({required this.token, required this.refreshToken, required this.type});
+
+  factory RefreshTokenResponse.fromJson(Map<String, dynamic> json) {
+    final data = json['data'];
+    return RefreshTokenResponse(token: data['token'], refreshToken: data['refresh_token'] ?? data['refreshToken'] ?? '', type: data['type']);
   }
 }
 
 class LoginResponse {
   final String token;
+  final String refreshToken;
   final String type;
   final UserModel user;
 
-  LoginResponse({required this.token, required this.type, required this.user});
+  LoginResponse({required this.token, required this.refreshToken, required this.type, required this.user});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     final data = json['data'];
-    return LoginResponse(
-      token: data['token'],
-      type: data['type'],
-      user: UserModel.fromJson(data),
-    );
+    return LoginResponse(token: data['token'], refreshToken: data['refresh_token'] ?? data['refreshToken'] ?? '', type: data['type'], user: UserModel.fromJson(data));
   }
 }
 
@@ -51,10 +68,7 @@ class UserModel extends User {
       fullName: json['fullName'],
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
-      role: UserRole.values.firstWhere(
-        (e) => e.toString().split('.').last == json['role'],
-        orElse: () => UserRole.UNKNOWN,
-      ),
+      role: UserRole.values.firstWhere((e) => e.toString().split('.').last == json['role'], orElse: () => UserRole.UNKNOWN),
       active: json['active'] ?? true,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,

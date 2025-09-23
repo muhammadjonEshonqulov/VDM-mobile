@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:vdm/core/constants/app_constants.dart';
 import 'package:vdm/features/users/data/models/users_response.dart';
 
+import '../../../../core/errors/error_handler.dart';
 import '../../../../core/utils/app_utils.dart';
 
 abstract class UsersRemoteDataSource {
@@ -23,10 +24,7 @@ class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
       final response = await _dio.get(AppConstants.usersEndpoint);
       return UsersResponse.fromJson(response.data);
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        throw DioException(requestOptions: e.requestOptions, error: 'Unauthorized access', type: DioExceptionType.badResponse);
-      }
-      rethrow;
+      throw ErrorHandler.handleDioError(e);
     }
   }
 

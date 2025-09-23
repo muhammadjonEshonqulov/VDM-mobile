@@ -7,4 +7,6 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, User>> getCachedUser();
   Future<Either<Failure, String>> getToken();
+  Future<Either<Failure, void>> refreshToken();
+  Future<Either<Failure, String>> getRefreshToken();
 }

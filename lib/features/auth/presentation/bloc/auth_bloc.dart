@@ -12,15 +12,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUser loginUser;
   final LogoutUser logoutUser;
   final GetCachedUser getCachedUser;
+  final RefreshAuthToken refreshAuthToken;
 
   AuthBloc({
     required this.loginUser,
     required this.logoutUser,
     required this.getCachedUser,
+    required this.refreshAuthToken,
   }) : super(AuthInitial()) {
     on<AppStarted>(_onAppStarted);
     on<LoginRequested>(_onLoginRequested);
     on<LogoutRequested>(_onLogoutRequested);
+    on<RefreshTokenRequested>(_onRefreshTokenRequested);
   }
 
   Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
@@ -38,15 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       password: event.password,
     ));
     failureOrUser.fold(
-      (failure) {
-        if (failure is AuthFailure) {
-          emit(AuthError(message: failure.message));
-        } else if (failure is NetworkFailure) {
-          emit(AuthError(message: failure.message));
-        } else {
-          emit(const AuthError(message: 'Login failed'));
-        }
-      },
+      (failure) => emit(AuthError(message: _getErrorMessage(failure, 'Login failed'))),
       (user) => emit(AuthAuthenticated(user: user)),
     );
   }
@@ -55,8 +50,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     final failureOrVoid = await logoutUser(NoParams());
     failureOrVoid.fold(
-      (failure) => emit(const AuthError(message: 'Logout failed')),
+      (failure) => emit(AuthError(message: _getErrorMessage(failure, 'Logout failed'))),
       (_) => emit(AuthUnauthenticated()),
     );
+  }
+
+  Future<void> _onRefreshTokenRequested(RefreshTokenRequested event, Emitter<AuthState> emit) async {
+    final failureOrVoid = await refreshAuthToken(NoParams());
+    failureOrVoid.fold(
+      (failure) => emit(AuthError(message: _getErrorMessage(failure, 'Token refresh failed'))),
+      (_) => emit(AuthTokenRefreshed()),
+    );
+  }
+
+  /// Extract error message from failure with fallback to default message
+  String _getErrorMessage(Failure failure, String defaultMessage) {
+    return failure.message.isNotEmpty ? failure.message : defaultMessage;
   }
 }

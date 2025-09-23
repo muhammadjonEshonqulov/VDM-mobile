@@ -16,11 +16,7 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
   final ToggleUserStatus toggleUserStatus;
   final DeleteUser deleteUser;
 
-  UsersBloc({
-    required this.getUsers,
-    required this.toggleUserStatus,
-    required this.deleteUser,
-  }) : super(UsersInitial()) {
+  UsersBloc({required this.getUsers, required this.toggleUserStatus, required this.deleteUser}) : super(UsersInitial()) {
     on<LoadUsers>(_onLoadUsers);
     on<ToggleUserStatusEvent>(_onToggleUserStatus);
     on<DeleteUserEvent>(_onDeleteUser);
@@ -28,23 +24,10 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
 
   Future<void> _onLoadUsers(LoadUsers event, Emitter<UsersState> emit) async {
     emit(UsersLoading());
-    
+
     final failureOrUsers = await getUsers(NoParams());
-    
-    failureOrUsers.fold(
-      (failure) {
-        if (failure is AuthFailure) {
-          emit(UsersError(message: failure.message));
-        } else if (failure is NetworkFailure) {
-          emit(UsersError(message: failure.message));
-        } else if (failure is ServerFailure) {
-          emit(UsersError(message: failure.message));
-        } else {
-          emit(const UsersError(message: 'Failed to load users'));
-        }
-      },
-      (users) => emit(UsersLoaded(users: users)),
-    );
+
+    failureOrUsers.fold((failure) => emit(UsersError(message: failure.message)), (users) => emit(UsersLoaded(users: users)));
   }
 
   Future<void> _onToggleUserStatus(ToggleUserStatusEvent event, Emitter<UsersState> emit) async {
@@ -56,9 +39,9 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     }
 
     emit(UsersActionLoading(users: currentState.users, actionUserId: event.userId));
-    
+
     final failureOrVoid = await toggleUserStatus(ToggleUserStatusParams(userId: event.userId));
-    
+
     failureOrVoid.fold(
       (failure) {
         String errorMessage = 'Failed to toggle user status';
@@ -69,14 +52,11 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
         } else if (failure is ServerFailure) {
           errorMessage = failure.message;
         }
-        
+
         if (kDebugMode) {
           debugPrint('❌ Failed to toggle user status: $errorMessage');
         }
-        emit(UsersActionError(
-          users: currentState.users,
-          message: errorMessage,
-        ));
+        emit(UsersActionError(users: currentState.users, message: errorMessage));
         // Return to loaded state after showing error
         Future.delayed(const Duration(seconds: 2), () {
           if (!emit.isDone) {
@@ -103,9 +83,9 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
     }
 
     emit(UsersActionLoading(users: currentState.users, actionUserId: event.userId));
-    
+
     final failureOrVoid = await deleteUser(DeleteUserParams(userId: event.userId));
-    
+
     failureOrVoid.fold(
       (failure) {
         String errorMessage = 'Failed to delete user';
@@ -116,14 +96,11 @@ class UsersBloc extends Bloc<UsersEvent, UsersState> {
         } else if (failure is ServerFailure) {
           errorMessage = failure.message;
         }
-        
+
         if (kDebugMode) {
           debugPrint('❌ Failed to delete user: $errorMessage');
         }
-        emit(UsersActionError(
-          users: currentState.users,
-          message: errorMessage,
-        ));
+        emit(UsersActionError(users: currentState.users, message: errorMessage));
         // Return to loaded state after showing error
         Future.delayed(const Duration(seconds: 2), () {
           if (!emit.isDone) {

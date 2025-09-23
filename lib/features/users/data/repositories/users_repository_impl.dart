@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:vdm/core/errors/failures.dart';
+import 'package:vdm/core/errors/error_handler.dart';
 import 'package:vdm/core/network/network_info.dart';
 import 'package:vdm/features/auth/domain/entities/user.dart';
 import 'package:vdm/features/users/data/datasources/users_datasource.dart';
@@ -22,10 +23,7 @@ class UsersRepositoryImpl implements UsersRepository {
         final usersResponse = await remoteDataSource.getUsers();
         return Right(usersResponse.data);
       } on DioException catch (e) {
-        if (e.response?.statusCode == 401) {
-          return Left(AuthFailure(message: 'Unauthorized access'));
-        }
-        return Left(ServerFailure(message: e.message ?? 'Failed to fetch users'));
+        return Left(ErrorHandler.handleDioError(e));
       } catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
@@ -41,12 +39,7 @@ class UsersRepositoryImpl implements UsersRepository {
         await remoteDataSource.toggleUserStatus(userId);
         return const Right(null);
       } on DioException catch (e) {
-        if (e.response?.statusCode == 401) {
-          return Left(AuthFailure(message: 'Unauthorized access'));
-        } else if (e.response?.statusCode == 404) {
-          return Left(ServerFailure(message: 'User not found'));
-        }
-        return Left(ServerFailure(message: e.message ?? 'Failed to toggle user status'));
+        return Left(ErrorHandler.handleDioError(e));
       } catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
@@ -62,14 +55,7 @@ class UsersRepositoryImpl implements UsersRepository {
         await remoteDataSource.deleteUser(userId);
         return const Right(null);
       } on DioException catch (e) {
-        if (e.response?.statusCode == 401) {
-          return Left(AuthFailure(message: 'Unauthorized access'));
-        } else if (e.response?.statusCode == 404) {
-          return Left(ServerFailure(message: 'User not found'));
-        } else if (e.response?.statusCode == 403) {
-          return Left(ServerFailure(message: 'Cannot delete this user'));
-        }
-        return Left(ServerFailure(message: e.message ?? 'Failed to delete user'));
+        return Left(ErrorHandler.handleDioError(e));
       } catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }

@@ -10,6 +10,7 @@ abstract class DriversState extends Equatable {
 class DriversInitial extends DriversState {}
 
 class DriversLoading extends DriversState {}
+
 class DriversError extends DriversState {
   final String message;
 

@@ -1,23 +1,19 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide ErrorWidget;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vdm/core/constants/app_constants.dart';
 import 'package:vdm/core/utils/app_utils.dart';
+import 'package:vdm/core/widgets/empty_widget.dart';
+import 'package:vdm/core/widgets/errors_widget.dart';
+import 'package:vdm/core/widgets/loading_widget.dart';
 import 'package:vdm/features/auth/domain/entities/user.dart';
 import 'package:vdm/features/users/presentation/bloc/users_bloc.dart';
 import 'package:vdm/features/users/presentation/widgets/delete_confirmation_dialog.dart';
 import 'package:vdm/features/users/presentation/widgets/user_card.dart';
-import 'package:vdm/features/users/presentation/widgets/users_empty_widget.dart';
-import 'package:vdm/features/users/presentation/widgets/users_error_widget.dart';
-import 'package:vdm/features/users/presentation/widgets/users_loading_widget.dart';
 
 import '../widgets/add_user_dialog.dart';
 
 class UsersPage extends StatefulWidget {
-  const UsersPage({super.key, required this.sharedPreferences});
+  const UsersPage({super.key});
 
-  final SharedPreferences sharedPreferences;
   @override
   State<UsersPage> createState() => _UsersPageState();
 }
@@ -26,25 +22,21 @@ class _UsersPageState extends State<UsersPage> {
   @override
   void initState() {
     super.initState();
-    if (kDebugMode) {
-      debugPrint('👥 UsersPage: Loading users...');
-    }
+
     context.read<UsersBloc>().add(const LoadUsers());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Users'), backgroundColor: Theme.of(context).primaryColor, foregroundColor: Colors.white, elevation: 0),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          
-          AppUtils.showSnackBar(context, widget.sharedPreferences.getString(AppConstants.refreshTokenKey) ?? 'refreshTokenKey');
-          // AddUserDialog.show(context);
+          AddUserDialog.show(context);
         },
         child: const Icon(Icons.add),
       ),
       body: BlocListener<UsersBloc, UsersState>(
+        listenWhen: (previous, current) => current is UsersActionError,
         listener: (context, state) {
           if (state is UsersActionError) {
             AppUtils.showErrorSnackBar(context, state.message);
@@ -52,13 +44,10 @@ class _UsersPageState extends State<UsersPage> {
         },
         child: BlocBuilder<UsersBloc, UsersState>(
           builder: (context, state) {
-            // if (kDebugMode) {
-            //   debugPrint('👥 UsersBloc State: $state');
-            // }
             if (state is UsersLoading) {
-              return const UsersLoadingWidget();
+              return const LoadingWidget(message: 'Loading users...');
             } else if (state is UsersError) {
-              return UsersErrorWidget(
+              return ErrorWidget(
                 message: state.message,
                 onRetry: () {
                   context.read<UsersBloc>().add(const LoadUsers());
@@ -72,7 +61,7 @@ class _UsersPageState extends State<UsersPage> {
                   : (state as UsersActionError).users;
               final actionUserId = state is UsersActionLoading ? state.actionUserId : null;
               if (users.isEmpty) {
-                return const UsersEmptyWidget();
+                return const EmptyWidget();
               }
 
               return RefreshIndicator(

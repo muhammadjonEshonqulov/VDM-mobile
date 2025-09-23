@@ -40,7 +40,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   bool _shouldShowAppBar() {
     // Show app bar for Settings page (index 2) and Dashboard page (index 1)
-    return _currentIndex == 1 || _currentIndex == 2;
+    // return _currentIndex == 1 || _currentIndex == 2;
+    return true;
   }
 
   List<Widget> _buildAppBarActions() {

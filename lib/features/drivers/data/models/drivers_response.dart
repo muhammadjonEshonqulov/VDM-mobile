@@ -1,3 +1,33 @@
+class DriversResponse {
+  DriversResponse({required this.success, required this.message, required this.data, required this.timestamp});
+
+  factory DriversResponse.fromJson(Map<String, dynamic> json) {
+    return DriversResponse(
+      success: json['success'] ?? false,
+      message: json['message'] ?? '',
+      data: (json['data'] as List<dynamic>?)?.map((user) => Driver.fromJson(user as Map<String, dynamic>)).toList() ?? [],
+      timestamp: json['timestamp'] ?? 0,
+    );
+  }
+
+  bool success;
+  String message;
+  List<Driver> data;
+  int timestamp;
+
+  DriversResponse copyWith({bool? success, String? message, List<Driver>? data, int? timestamp}) =>
+      DriversResponse(success: success ?? this.success, message: message ?? this.message, data: data ?? this.data, timestamp: timestamp ?? this.timestamp);
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['success'] = success;
+    map['message'] = message;
+    map['data'] = data.map((v) => v.toJson()).toList();
+    map['timestamp'] = timestamp;
+    return map;
+  }
+}
+
 class Driver {
   Driver({this.id, this.fullName, this.licenseNumber, this.phone, this.email, this.active, this.createdAt, this.updatedAt});
 

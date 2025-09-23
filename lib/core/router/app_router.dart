@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vdm/features/drivers/presentation/bloc/drivers_bloc.dart';
 
 import '../di/injection_container.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -41,6 +42,7 @@ class AppRouter {
           providers: [
             BlocProvider(create: (context) => sl<AuthBloc>()),
             BlocProvider(create: (context) => sl<UsersBloc>()),
+            BlocProvider(create: (context) => sl<DriversBloc>()),
           ],
           child: const MainNavigationPage(),
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../features/drivers/presentation/pages/drivers_page.dart';
 import '../../features/users/presentation/pages/users_page.dart';
-import '../di/injection_container.dart';
 
 class NavigationItem {
   final IconData icon;
@@ -14,8 +14,8 @@ class NavigationItem {
 
 class NavigationConfig {
   static List<NavigationItem> get bottomNavItems => [
-    NavigationItem(icon: Icons.people, label: 'Users', pageBuilder: () => UsersPage(sharedPreferences: sl(),), route: '/main/users'),
-    NavigationItem(icon: Icons.dashboard, label: 'Dashboard', pageBuilder: () => const DashboardPage(), route: '/main/dashboard'),
+    NavigationItem(icon: Icons.people, label: 'Users', pageBuilder: () => UsersPage(), route: '/main/users'),
+    NavigationItem(icon: Icons.drive_eta_rounded, label: 'Drivers', pageBuilder: () => DriversPage(), route: '/main/drivers'),
     NavigationItem(icon: Icons.settings, label: 'Settings', pageBuilder: () => const SettingsPage(), route: '/main/settings'),
   ];
 
@@ -31,32 +31,6 @@ class NavigationConfig {
       return 'Unknown';
     }
     return bottomNavItems[index].label;
-  }
-}
-
-// Placeholder pages - these should be implemented as separate features
-class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.dashboard, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'Dashboard',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.grey),
-            ),
-            SizedBox(height: 8),
-            Text('This page will be implemented soon', style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-      ),
-    );
   }
 }
 

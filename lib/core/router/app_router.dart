@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vdm/features/drivers/presentation/bloc/drivers_bloc.dart';
+import 'package:vdm/features/admin/drivers/presentation/bloc/drivers_bloc.dart';
+import 'package:vdm/features/admin/main/presentation/pages/main_navigation_page.dart';
+import 'package:vdm/features/admin/users/presentation/bloc/users_bloc.dart';
 
-import '../di/injection_container.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
-import '../../features/main/presentation/pages/main_navigation_page.dart';
-import '../../features/users/presentation/bloc/users_bloc.dart';
 import '../constants/app_constants.dart';
+import '../di/injection_container.dart';
 
 class AppRouter {
-
   static GoRouter get router => _router;
 
   static final GoRouter _router = GoRouter(
@@ -22,18 +21,12 @@ class AppRouter {
       GoRoute(
         path: AppConstants.routeSplash,
         name: AppConstants.routeSplash.replaceAll('/', ''),
-        builder: (context, state) => BlocProvider(
-          create: (context) => sl<AuthBloc>()..add(AppStarted()),
-          child: const SplashPage(),
-        ),
+        builder: (context, state) => BlocProvider(create: (context) => sl<AuthBloc>()..add(AppStarted()), child: const SplashPage()),
       ),
       GoRoute(
         path: AppConstants.routeLogin,
         name: AppConstants.routeLogin.replaceAll('/', ''),
-        builder: (context, state) => BlocProvider(
-          create: (context) => sl<AuthBloc>(),
-          child: const LoginPage(),
-        ),
+        builder: (context, state) => BlocProvider(create: (context) => sl<AuthBloc>(), child: const LoginPage()),
       ),
       GoRoute(
         path: AppConstants.routeHome,
@@ -76,11 +69,11 @@ class AppNavigation {
   static void pushHome(BuildContext context) {
     context.push(AppConstants.routeHome);
   }
-  
+
   static void goToUsers(BuildContext context) {
     context.go(AppConstants.routeUsers);
   }
-  
+
   static void goToUserDetail(BuildContext context, {required int userId}) {
     context.go(AppConstants.getUserDetailPath(userId));
   }

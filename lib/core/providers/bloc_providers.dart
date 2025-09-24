@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:vdm/features/admin/users/presentation/bloc/users_bloc.dart';
 
 import '../di/injection_container.dart';
 import '../theme/theme_bloc.dart';
 import '../language/language_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
-import '../../features/users/presentation/bloc/users_bloc.dart';
 
 class BlocProviders {
   static List<BlocProvider> get providers => [

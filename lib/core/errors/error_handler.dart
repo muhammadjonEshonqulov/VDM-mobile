@@ -41,7 +41,7 @@ class ErrorHandler {
             return NetworkFailure(message: 'Internet aloqasi vaqti tugadi');
 
           case DioExceptionType.connectionError:
-            return NetworkFailure(message: 'Internet aloqasi yo\'q');
+            return NetworkFailure(message: 'Server bilan aloqa yo\'q');
 
           default:
             errorMessage = _extractErrorMessage(error, 'Noma\'lum xatolik');

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:vdm/features/admin/drivers/presentation/pages/drivers_page.dart';
+import 'package:vdm/features/admin/users/presentation/pages/users_page.dart';
 
-import '../../features/drivers/presentation/pages/drivers_page.dart';
-import '../../features/users/presentation/pages/users_page.dart';
 
 class NavigationItem {
   final IconData icon;
